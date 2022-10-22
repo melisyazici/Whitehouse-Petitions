@@ -10,10 +10,16 @@ import UIKit
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
-
+    var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        if let tabBarController = window?.rootViewController as? UITabBarController {
+            let storyboard = UIStoryboard(name: "Main", bundle: nil) // finds main.storyboard bundle, it loads it into a type UIStoryBoard
+            let vc = storyboard.instantiateViewController(withIdentifier: "NavController") // then uses that to instantiate the nav controller using the NavController identifier
+            vc.tabBarItem = UITabBarItem(tabBarSystemItem: .topRated, tag: 1) // attach tabBarItem to nav controller using the topRated tabBarSystemItem with a tag 1
+            tabBarController.viewControllers?.append(vc) // append it to the view controllers array of tab bar controller
+        }
         return true
     }
 
