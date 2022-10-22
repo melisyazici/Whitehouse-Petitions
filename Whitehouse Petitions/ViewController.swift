@@ -10,6 +10,8 @@ import UIKit
 class ViewController: UITableViewController {
     
     var petitions = [Petition]()
+    var filteredPetitions = [Petition]()
+    var filterKeyword: String = "" // empty string for no filter
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,6 +28,8 @@ class ViewController: UITableViewController {
         
         navigationItem.rightBarButtonItem = UIBarButtonItem(title: "Credits", style: .plain, target: self, action: #selector(showCredits))
         
+        navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Filter", style: .plain, target: self, action: #selector(askFilter))
+        
         if let url = URL(string: urlString) {
             if let data = try? Data(contentsOf: url) {
                 parse(json: data)
@@ -34,6 +38,40 @@ class ViewController: UITableViewController {
         }
         
         showError()
+    }
+    
+    @objc func askFilter() {
+        let ac = UIAlertController(title: "Filter", message: "Filter the petitions", preferredStyle: .alert)
+        ac.addTextField()
+        ac.addAction(UIAlertAction(title: "Cancel", style: .cancel))
+        ac.addAction(UIAlertAction(title: "OK", style: .default) {
+            [weak self, weak ac] _ in
+            self?.filterKeyword = ac?.textFields?[0].text ?? ""
+            self?.filterData()
+            self?.tableView.reloadData()
+        })
+        
+        present(ac, animated: true)
+    }
+    
+    func filterData() {
+        if filterKeyword.isEmpty {
+            filteredPetitions = petitions
+            navigationItem.leftBarButtonItem?.title = "Filter"
+            return
+        }
+        
+        navigationItem.leftBarButtonItem?.title = "Filter (current: \(filterKeyword)"
+        
+        filteredPetitions = petitions.filter({ petition in
+            if let _ = petition.title.range(of: filterKeyword, options: .caseInsensitive) {
+                return true
+            }
+            if let _ = petition.body.range(of: filterKeyword, options: .caseInsensitive) {
+                return true
+            }
+            return false
+        })
     }
     
     @objc func showCredits() {
