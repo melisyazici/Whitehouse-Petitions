@@ -30,10 +30,13 @@ class ViewController: UITableViewController {
         
         navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Filter", style: .plain, target: self, action: #selector(askFilter))
         
-        if let url = URL(string: urlString) {
-            if let data = try? Data(contentsOf: url) {
-                parse(json: data)
-                return
+        DispatchQueue.global(qos: .userInitiated).async {
+            [weak self] in // "[weak self] in" it isn't necessary here because Grand Central Dispatch (GCD) runs the code once then throws it away but I'm writing it anyway
+            if let url = URL(string: urlString) {
+                if let data = try? Data(contentsOf: url) {
+                    self?.parse(json: data)
+                    return
+                }
             }
         }
         
